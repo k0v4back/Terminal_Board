@@ -42,3 +42,8 @@
 *.idb
 *.pdb
 
+/Code/.mxproject
+/Code/MDK-ARM/RTE/
+/Code/MDK-ARM/Code/
+/Code/MDK-ARM/Code.uvguix.vadko
+/Code/MDK-ARM/DebugConfig/
