@@ -198,6 +198,26 @@ void SysTick_Handler(void)
 /* please refer to the startup file (startup_stm32f1xx.s).                    */
 /******************************************************************************/
 
+/**
+  * @brief This function handles EXTI line0 interrupt.
+  */
+void EXTI0_IRQHandler(void)
+{
+  /* USER CODE BEGIN EXTI0_IRQn 0 */
+	
+	if(GPIOB->IDR & GPIO_PIN_0) {
+			GPIOA->BRR = GPIO_PIN_8;
+			GPIOA->BRR = GPIO_PIN_10;
+	}else{
+			GPIOA->BSRR = GPIO_PIN_8;
+			GPIOA->BSRR = GPIO_PIN_10;
+	}
+
+  /* USER CODE BEGIN EXTI0_IRQn 1 */
+
+  /* USER CODE END EXTI0_IRQn 1 */
+}
+
 /* USER CODE BEGIN 1 */
 
 /* USER CODE END 1 */
