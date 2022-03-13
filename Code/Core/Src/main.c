@@ -27,8 +27,24 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
+uint32_t count = 10;
+char s_count[5];
 
+void UpdateCount(uint32_t count);
 /* USER CODE END PTD */
+
+void UpdateCount(uint32_t count)
+{
+	sprintf(s_count, "%ld", count);
+  ssd1306_SetCursor(17, 0);
+  ssd1306_WriteString("TERMINAL", Font_11x18, White);
+	ssd1306_SetCursor(32, 18);
+  ssd1306_WriteString("BOARD", Font_11x18, White);
+	ssd1306_SetCursor(10, 36);
+  ssd1306_WriteString("REV.1.0", Font_11x18, White);
+	ssd1306_SetCursor(100, 36);
+  ssd1306_WriteString(s_count, Font_11x18, White);
+}
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
@@ -101,12 +117,14 @@ int main(void)
   HAL_Delay(1000);
 
   // Write data to local screenbuffer
+	/*sprintf(s_count, "%ld", count);
   ssd1306_SetCursor(17, 0);
   ssd1306_WriteString("TERMINAL", Font_11x18, White);
 	ssd1306_SetCursor(32, 18);
   ssd1306_WriteString("BOARD", Font_11x18, White);
-	ssd1306_SetCursor(15, 36);
-  ssd1306_WriteString("REV 1.0", Font_11x18, White);
+	ssd1306_SetCursor(64, 36);
+  ssd1306_WriteString(s_count, Font_11x18, White);*/
+	UpdateCount(20);
 
 	
 	/*
@@ -130,8 +148,16 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-		//HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_SET);
-		//HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, GPIO_PIN_SET);
+		/*GPIOA->BSRR |= GPIO_BSRR_BR8;
+		HAL_Delay(500);
+		GPIOA->BSRR |= GPIO_BSRR_BS10;
+		HAL_Delay(500);*/
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, GPIO_PIN_RESET);
+		HAL_Delay(500);
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);
+		HAL_Delay(500);
   }
   /* USER CODE END 3 */
 }
@@ -243,7 +269,7 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pins : PA8 PA10 */
   GPIO_InitStruct.Pin = GPIO_PIN_8|GPIO_PIN_10;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 

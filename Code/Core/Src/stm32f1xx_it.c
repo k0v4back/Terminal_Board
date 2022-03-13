@@ -204,17 +204,20 @@ void SysTick_Handler(void)
 void EXTI0_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI0_IRQn 0 */
-	
-	if(GPIOB->IDR & GPIO_PIN_0) {
-			GPIOA->BRR = GPIO_PIN_8;
-			GPIOA->BRR = GPIO_PIN_10;
-	}else{
+
+  /* USER CODE END EXTI0_IRQn 0 */
+  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_0);
+  /* USER CODE BEGIN EXTI0_IRQn 1 */
+	if(GPIOB->IDR & GPIO_PIN_0){
 			GPIOA->BSRR = GPIO_PIN_8;
 			GPIOA->BSRR = GPIO_PIN_10;
+			GPIOC->BSRR = GPIO_PIN_13;
+		
+	} else {
+			GPIOA->BRR = GPIO_PIN_8;
+			GPIOA->BRR = GPIO_PIN_10;
+			GPIOC->BRR = GPIO_PIN_13;
 	}
-
-  /* USER CODE BEGIN EXTI0_IRQn 1 */
-
   /* USER CODE END EXTI0_IRQn 1 */
 }
 
