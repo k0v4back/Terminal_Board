@@ -47,3 +47,6 @@
 /Code/MDK-ARM/Code/
 /Code/MDK-ARM/Code.uvguix.vadko
 /Code/MDK-ARM/DebugConfig/
+/Code/MDK-ARM/Code.uvoptx
+/Code/MDK-ARM/Code.uvprojx
+/Code/MDK-ARM/EventRecorderStub.scvd
