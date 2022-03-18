@@ -22,6 +22,7 @@
 #include "stm32f1xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+extern uint16_t count_tick;
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -209,14 +210,12 @@ void EXTI0_IRQHandler(void)
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_0);
   /* USER CODE BEGIN EXTI0_IRQn 1 */
 	if(GPIOB->IDR & GPIO_PIN_0){
-			GPIOA->BSRR = GPIO_PIN_8;
-			GPIOA->BSRR = GPIO_PIN_10;
-			GPIOC->BSRR = GPIO_PIN_13;
-		
-	} else {
 			GPIOA->BRR = GPIO_PIN_8;
 			GPIOA->BRR = GPIO_PIN_10;
-			GPIOC->BRR = GPIO_PIN_13;
+			UpdateCount(count_tick++);
+	} else {
+			GPIOA->BSRR = GPIO_PIN_8;
+			GPIOA->BSRR = GPIO_PIN_10;
 	}
   /* USER CODE END EXTI0_IRQn 1 */
 }

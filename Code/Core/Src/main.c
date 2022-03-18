@@ -31,20 +31,8 @@ uint32_t count = 10;
 char s_count[5];
 
 void UpdateCount(uint32_t count);
+uint16_t count_tick = 0;
 /* USER CODE END PTD */
-
-void UpdateCount(uint32_t count)
-{
-	sprintf(s_count, "%ld", count);
-  ssd1306_SetCursor(17, 0);
-  ssd1306_WriteString("TERMINAL", Font_11x18, White);
-	ssd1306_SetCursor(32, 18);
-  ssd1306_WriteString("BOARD", Font_11x18, White);
-	ssd1306_SetCursor(10, 36);
-  ssd1306_WriteString("REV.1.0", Font_11x18, White);
-	ssd1306_SetCursor(100, 36);
-  ssd1306_WriteString(s_count, Font_11x18, White);
-}
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
@@ -72,7 +60,19 @@ static void MX_I2C1_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+void UpdateCount(uint32_t count)
+{
+	sprintf(s_count, "%ld", count);
+  ssd1306_SetCursor(17, 0);
+  ssd1306_WriteString("TERMINAL", Font_11x18, White);
+	ssd1306_SetCursor(32, 18);
+  ssd1306_WriteString("BOARD", Font_11x18, White);
+	ssd1306_SetCursor(10, 36);
+  ssd1306_WriteString("REV.1.0", Font_11x18, White);
+	ssd1306_SetCursor(100, 36);
+  ssd1306_WriteString(s_count, Font_11x18, White);
+	ssd1306_UpdateScreen(&hi2c1);
+}
 /* USER CODE END 0 */
 
 /**
@@ -106,38 +106,26 @@ int main(void)
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
 
+	/* Display init */
 	if (ssd1306_Init(&hi2c1) != 0) {
     Error_Handler();
   }
   HAL_Delay(1000);
-
   ssd1306_Fill(Black);
   ssd1306_UpdateScreen(&hi2c1);
-
   HAL_Delay(1000);
-
-  // Write data to local screenbuffer
-	/*sprintf(s_count, "%ld", count);
-  ssd1306_SetCursor(17, 0);
+  ssd1306_UpdateScreen(&hi2c1);
+	
+	 ssd1306_SetCursor(17, 0);
   ssd1306_WriteString("TERMINAL", Font_11x18, White);
 	ssd1306_SetCursor(32, 18);
   ssd1306_WriteString("BOARD", Font_11x18, White);
-	ssd1306_SetCursor(64, 36);
-  ssd1306_WriteString(s_count, Font_11x18, White);*/
-	UpdateCount(20);
-
+	ssd1306_SetCursor(10, 36);
+  ssd1306_WriteString("REV.1.0", Font_11x18, White);
+	ssd1306_SetCursor(100, 36);
+  ssd1306_WriteString("0", Font_11x18, White);
+	ssd1306_UpdateScreen(&hi2c1);
 	
-	/*
-  // Draw rectangle on screen
-  for (uint8_t i=0; i<28; i++) {
-      for (uint8_t j=0; j<64; j++) {
-          ssd1306_DrawPixel(100+i, 0+j, White);
-      }
-  }
-	*/
-
-  // Copy all data from local screenbuffer to the screen
-  ssd1306_UpdateScreen(&hi2c1);
 
   /* USER CODE END 2 */
 
@@ -151,13 +139,15 @@ int main(void)
 		/*GPIOA->BSRR |= GPIO_BSRR_BR8;
 		HAL_Delay(500);
 		GPIOA->BSRR |= GPIO_BSRR_BS10;
-		HAL_Delay(500);*/
+		HAL_Delay(500);
 		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_SET);
 		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, GPIO_PIN_RESET);
 		HAL_Delay(500);
 		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, GPIO_PIN_SET);
 		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);
-		HAL_Delay(500);
+		HAL_Delay(500);*/
+		//UpdateCount(20);
+		//HAL_Delay(500);
   }
   /* USER CODE END 3 */
 }
@@ -263,7 +253,7 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin : PB0 */
   GPIO_InitStruct.Pin = GPIO_PIN_0;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PA8 PA10 */
