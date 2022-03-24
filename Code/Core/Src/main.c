@@ -133,7 +133,7 @@ int main(void)
 	/* Start timer_1 */
 	HAL_TIM_Base_Start(&htim1);
 	
-	test = dht11_start();
+	//test = dht11_start();
 
   /* USER CODE END 2 */
 
@@ -141,6 +141,8 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+		test = dht11_start();
+		HAL_Delay(500);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -252,7 +254,7 @@ static void MX_TIM1_Init(void)
   htim1.Instance = TIM1;
   htim1.Init.Prescaler = 63;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim1.Init.Period = 65535;
+  htim1.Init.Period = 65534;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim1.Init.RepetitionCounter = 0;
   htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;

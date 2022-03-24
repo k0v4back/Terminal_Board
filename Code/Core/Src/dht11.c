@@ -13,6 +13,7 @@ uint8_t dht11_start(void)
 	
 	/* Checking if the sensor responded */
 	delay_us(40);
+	HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_15);
 	if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_15))
 			return ERROR_DHT11_NOT_RESPONSE_1;
 	delay_us(40);
