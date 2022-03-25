@@ -141,8 +141,8 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-		test = dht11_start();
-		HAL_Delay(500);
+		//test = dht11_start();
+		//HAL_Delay(500);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
