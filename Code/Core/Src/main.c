@@ -30,6 +30,12 @@
 /* USER CODE BEGIN PTD */
 char s_count[5];
 
+static struct dht11_sensor my_dht11_sensor = {
+	.dht_port = GPIOA,
+	.dht_pin = GPIO_PIN_15,
+};
+	
+
 void UpdateCount(uint32_t count);
 uint16_t count_tick = 0;
 uint16_t test = 0;
@@ -133,7 +139,8 @@ int main(void)
 	/* Start timer_1 */
 	HAL_TIM_Base_Start(&htim1);
 	
-	//test = dht11_start();
+	//HAL_Delay(500);
+	test = dht11_start(&my_dht11_sensor);
 
   /* USER CODE END 2 */
 
@@ -141,21 +148,24 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-		test = dht11_start();
-		HAL_Delay(500);
+		//test = dht11_start(&my_dht11_sensor);
+		//HAL_Delay(2000);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
 		/*GPIOA->BSRR |= GPIO_BSRR_BR8;
 		HAL_Delay(500);
 		GPIOA->BSRR |= GPIO_BSRR_BS10;
-		HAL_Delay(500);
+		HAL_Delay(500);*/
+		/*
 		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_SET);
 		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, GPIO_PIN_RESET);
 		HAL_Delay(500);
 		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10, GPIO_PIN_SET);
 		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);
-		HAL_Delay(500);*/
+		HAL_Delay(500);
+		*/
+		
 		//UpdateCount(20);
 		//HAL_Delay(500);
   }
@@ -322,7 +332,7 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin : PA15 */
   GPIO_InitStruct.Pin = GPIO_PIN_15;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
