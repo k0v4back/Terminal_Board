@@ -29,6 +29,8 @@
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
 char s_count[5];
+char s_humidity[5];
+char s_temperature[5];
 
 static struct dht11_sensor my_dht11_sensor = {
 	.dht_port = GPIOA,
@@ -140,7 +142,17 @@ int main(void)
 	HAL_TIM_Base_Start(&htim1);
 	
 	//HAL_Delay(500);
-	test = dht11_start(&my_dht11_sensor);
+	dht11_read(&my_dht11_sensor);
+	
+	sprintf(s_humidity, "%.2f", my_dht11_sensor.humidity);
+	sprintf(s_temperature, "%.2f", my_dht11_sensor.temperature);
+  ssd1306_SetCursor(17, 0);
+  ssd1306_WriteString("TERMINAL", Font_11x18, White);
+	ssd1306_SetCursor(32, 18);
+  ssd1306_WriteString(s_humidity, Font_11x18, White);
+	ssd1306_SetCursor(10, 36);
+  ssd1306_WriteString(s_temperature, Font_11x18, White);
+	ssd1306_UpdateScreen(&hi2c1);
 
   /* USER CODE END 2 */
 

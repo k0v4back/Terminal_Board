@@ -4,24 +4,29 @@
 #include "stm32f1xx_hal.h"
 #include "main.h"
 
-#ifndef ERROR_DHT11_NOT_RESPONSE_1
-#define ERROR_DHT11_NOT_RESPONSE_1        1
-#endif // ERROR_DHT11_NOT_RESPONSE
+#ifndef DHT11_RESPONSE
+enum DHT11_RESPONSE {
+	ERROR_DHT11_FIRST_INIT,
+	ERROR_DHT11_SECOND_INIT,
+	SUCCESS_DHT11_INIT
+};
+#endif // DHT11_RESPONSE
 
-#ifndef ERROR_DHT11_NOT_RESPONSE_2
-#define ERROR_DHT11_NOT_RESPONSE_2        2
-#endif // ERROR_DHT11_NOT_RESPONSE
-
-#ifndef DHT11_SUCCESS_RESPONSE
-#define DHT11_SUCCESS_RESPONSE        		3
-#endif // DHT11_SUCCESS_RESPONSE
-
-struct dht11_sensor{
-	GPIO_TypeDef *dht_port;				//GPIOA, GPIOB, ...,
-	uint16_t dht_pin;							//GPIO_PIN_0, GPIO_PIN_1, ...,
+/**
+ * struct dht11_sensor - dht11 configuration parameters.
+ * @dht_port:		All the possible ports like GPIOA, GPIOB, ...,
+ * @clr_mask:		All the possible pins like GPIO_PIN_0, GPIO_PIN_1, ...,
+ */
+struct dht11_sensor {
+	GPIO_TypeDef 				*dht_port;
+	uint16_t 						dht_pin;
+	float 							humidity;
+	float 							temperature;
 };
 
 uint8_t dht11_start(struct dht11_sensor * sensor);
+uint8_t dht11_read_byte(struct dht11_sensor * sensor);
+void dht11_read(struct dht11_sensor * sensor);
 static void input_mode(struct dht11_sensor * sensor);
 static void output_mode(struct dht11_sensor * sensor);
 

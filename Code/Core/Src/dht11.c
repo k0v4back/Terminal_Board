@@ -1,9 +1,6 @@
 #include "dht11.h"
 #include "delay.h"
 
-/*
-dfdf
-*/
 uint8_t dht11_start(struct dht11_sensor * sensor)
 {
 	output_mode(sensor); /* set output mode */
@@ -18,15 +15,61 @@ uint8_t dht11_start(struct dht11_sensor * sensor)
 	/* Checking if the sensor responded */
 	delay_us(40);
 	if(HAL_GPIO_ReadPin(sensor->dht_port, sensor->dht_pin) == GPIO_PIN_SET)
-			return ERROR_DHT11_NOT_RESPONSE_1;
+			return ERROR_DHT11_FIRST_INIT;
+	
 	delay_us(80);
 	if(HAL_GPIO_ReadPin(sensor->dht_port, sensor->dht_pin) == GPIO_PIN_RESET)
-			return ERROR_DHT11_NOT_RESPONSE_2;
+			return ERROR_DHT11_SECOND_INIT;
 	
-	/* Wait until the sensor starts transmitting data */
-	while(HAL_GPIO_ReadPin(sensor->dht_port, sensor->dht_pin)){};
+	/* Wait until the sensor starts transmitting data (pull the line to the ground) */
+	while(HAL_GPIO_ReadPin(sensor->dht_port, sensor->dht_pin) == GPIO_PIN_SET){};
 		
-	return DHT11_SUCCESS_RESPONSE;
+	return SUCCESS_DHT11_INIT;
+}
+
+uint8_t dht11_read_byte(struct dht11_sensor * sensor)
+{
+	uint8_t i = 8, byte = 0;
+	
+	input_mode(sensor); /* set input mode */
+	
+	while(i--){
+		/* Wait until pull the line to up */
+		while(HAL_GPIO_ReadPin(sensor->dht_port, sensor->dht_pin) == GPIO_PIN_RESET){};
+			
+		delay_us(40);
+			
+		if(HAL_GPIO_ReadPin(sensor->dht_port, sensor->dht_pin) == GPIO_PIN_SET){
+			byte |= (1 << i);
+			/* Wait until pull the line to ground */
+			while(HAL_GPIO_ReadPin(sensor->dht_port, sensor->dht_pin) == GPIO_PIN_SET){};
+		}
+	}
+	
+	return byte;
+}
+
+void dht11_read(struct dht11_sensor * sensor)
+{
+	uint8_t ret = 0;
+	uint8_t data[5] = {0};
+	
+	ret = dht11_start(sensor);
+	if(ret != SUCCESS_DHT11_INIT){
+		/* ******* */
+		return;
+	}
+	
+	/* Read bytes */
+	for(uint8_t i = 0; i < 5; i++){
+		data[i] = dht11_read_byte(sensor);
+	}
+	
+	/* Check control summ */
+	if((data[0] + data[1] + data[2] + data[3]) == data[4]){
+		sensor->humidity = data[0];
+		sensor->temperature = data[2];
+	}
 }
 
 static void input_mode(struct dht11_sensor * sensor)
