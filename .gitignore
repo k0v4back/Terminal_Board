@@ -42,6 +42,9 @@
 *.idb
 *.pdb
 
+/Altium/__Previews
+/Altium/Project Outputs for Data_Transmission_Panel
+
 /Code/.mxproject
 /Code/MDK-ARM/RTE/
 /Code/MDK-ARM/Code/
