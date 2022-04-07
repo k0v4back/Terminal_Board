@@ -22,12 +22,14 @@
 #include "stm32f1xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-extern uint16_t count_tick;
+#include "dht11.h"
+#include "help_functions.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN TD */
-
+extern volatile _Bool flag;
+extern struct dht11_sensor my_dht11_sensor;
 /* USER CODE END TD */
 
 /* Private define ------------------------------------------------------------*/
@@ -56,7 +58,7 @@ extern uint16_t count_tick;
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
-
+extern TIM_HandleTypeDef htim2;
 /* USER CODE BEGIN EV */
 
 /* USER CODE END EV */
@@ -212,12 +214,33 @@ void EXTI0_IRQHandler(void)
 	if(GPIOB->IDR & GPIO_PIN_0){
 			GPIOA->BRR = GPIO_PIN_8;
 			GPIOA->BRR = GPIO_PIN_10;
-			UpdateCount(count_tick++);
 	} else {
 			GPIOA->BSRR = GPIO_PIN_8;
 			GPIOA->BSRR = GPIO_PIN_10;
 	}
   /* USER CODE END EXTI0_IRQn 1 */
+}
+
+/**
+  * @brief This function handles TIM2 global interrupt.
+  */
+void TIM2_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM2_IRQn 0 */
+
+  /* USER CODE END TIM2_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim2);
+  /* USER CODE BEGIN TIM2_IRQn 1 */
+	
+	HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_10);
+	if(!flag){
+		flag = 1;
+	}
+	//dht11_read(&my_dht11_sensor);
+	//UpdateDisplay(my_dht11_sensor.humidity, my_dht11_sensor.temperature);
+	//UpdateDisplay((float)3, (float)3);
+	
+  /* USER CODE END TIM2_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

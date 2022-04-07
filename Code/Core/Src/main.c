@@ -24,21 +24,19 @@
 #include "ssd1306.h"
 #include "fonts.h"
 #include "dht11.h"
+#include "help_functions.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
 char s_count[5];
-char s_humidity[5];
-char s_temperature[5];
 
-static struct dht11_sensor my_dht11_sensor = {
+struct dht11_sensor my_dht11_sensor = {
 	.dht_port = GPIOA,
 	.dht_pin = GPIO_PIN_15,
 };
 	
-
-void UpdateCount(uint32_t count);
+volatile _Bool flag = 0;
 uint16_t count_tick = 0;
 uint16_t test = 0;
 /* USER CODE END PTD */
@@ -56,6 +54,7 @@ uint16_t test = 0;
 I2C_HandleTypeDef hi2c1;
 
 TIM_HandleTypeDef htim1;
+TIM_HandleTypeDef htim2;
 
 /* USER CODE BEGIN PV */
 
@@ -66,25 +65,14 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_TIM1_Init(void);
+static void MX_TIM2_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-void UpdateCount(uint32_t count)
-{
-	sprintf(s_count, "%ld", count);
-  ssd1306_SetCursor(17, 0);
-  ssd1306_WriteString("TERMINAL", Font_11x18, White);
-	ssd1306_SetCursor(32, 18);
-  ssd1306_WriteString("BOARD", Font_11x18, White);
-	ssd1306_SetCursor(10, 36);
-  ssd1306_WriteString("REV.1.0", Font_11x18, White);
-	ssd1306_SetCursor(100, 36);
-  ssd1306_WriteString(s_count, Font_11x18, White);
-	ssd1306_UpdateScreen(&hi2c1);
-}
+
 /* USER CODE END 0 */
 
 /**
@@ -117,6 +105,7 @@ int main(void)
   MX_GPIO_Init();
   MX_I2C1_Init();
   MX_TIM1_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
 
 	/* Display init */
@@ -128,31 +117,14 @@ int main(void)
   ssd1306_UpdateScreen(&hi2c1);
   HAL_Delay(1000);
 	
-	ssd1306_SetCursor(17, 0);
-  ssd1306_WriteString("TERMINAL", Font_11x18, White);
-	ssd1306_SetCursor(32, 18);
-  ssd1306_WriteString("BOARD", Font_11x18, White);
-	ssd1306_SetCursor(10, 36);
-  ssd1306_WriteString("REV.1.0", Font_11x18, White);
-	ssd1306_SetCursor(100, 36);
-  ssd1306_WriteString("0", Font_11x18, White);
-	ssd1306_UpdateScreen(&hi2c1);
-	
-	/* Start timer_1 */
+	/* Start timer_1, timer_2*/
 	HAL_TIM_Base_Start(&htim1);
+	HAL_TIM_Base_Start_IT(&htim2);
 	
-	//HAL_Delay(500);
-	dht11_read(&my_dht11_sensor);
-	
-	sprintf(s_humidity, "%.2f", my_dht11_sensor.humidity);
-	sprintf(s_temperature, "%.2f", my_dht11_sensor.temperature);
-  ssd1306_SetCursor(17, 0);
-  ssd1306_WriteString("TERMINAL", Font_11x18, White);
-	ssd1306_SetCursor(32, 18);
-  ssd1306_WriteString(s_humidity, Font_11x18, White);
-	ssd1306_SetCursor(10, 36);
-  ssd1306_WriteString(s_temperature, Font_11x18, White);
-	ssd1306_UpdateScreen(&hi2c1);
+	//dht11_read(&my_dht11_sensor);
+	/*dht11_read(&my_dht11_sensor);
+	UpdateDisplay(my_dht11_sensor.humidity, my_dht11_sensor.temperature);*/
+	//UpdateDisplay((float)0, (float)0);
 
   /* USER CODE END 2 */
 
@@ -163,7 +135,11 @@ int main(void)
 		//test = dht11_start();
 		//HAL_Delay(500);
     /* USER CODE END WHILE */
-
+	if(flag){
+		dht11_read(&my_dht11_sensor);
+		UpdateDisplay(my_dht11_sensor.humidity, my_dht11_sensor.temperature);
+		flag = 0;
+	}
     /* USER CODE BEGIN 3 */
 		/*GPIOA->BSRR |= GPIO_BSRR_BR8;
 		HAL_Delay(500);
@@ -298,6 +274,51 @@ static void MX_TIM1_Init(void)
   /* USER CODE BEGIN TIM1_Init 2 */
 
   /* USER CODE END TIM1_Init 2 */
+
+}
+
+/**
+  * @brief TIM2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM2_Init(void)
+{
+
+  /* USER CODE BEGIN TIM2_Init 0 */
+
+  /* USER CODE END TIM2_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM2_Init 1 */
+
+  /* USER CODE END TIM2_Init 1 */
+  htim2.Instance = TIM2;
+  htim2.Init.Prescaler = 63999;
+  htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim2.Init.Period = 499;
+  htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim2, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM2_Init 2 */
+
+  /* USER CODE END TIM2_Init 2 */
 
 }
 
