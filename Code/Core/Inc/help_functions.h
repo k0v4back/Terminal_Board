@@ -7,6 +7,6 @@
 #include "fonts.h"
 #include "dht11.h"
 
-void UpdateDisplay(float humidity, float temperature);
+void UpdateDisplay(float humidity, float temperature, float bat_volt);
 
 #endif  // _HELP_FUNCTIONS
