@@ -29,6 +29,8 @@
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN TD */
 extern volatile _Bool flag;
+extern volatile float mcu_voltage;
+extern volatile uint32_t adc_value;
 extern struct dht11_sensor my_dht11_sensor;
 /* USER CODE END TD */
 
@@ -58,6 +60,8 @@ extern struct dht11_sensor my_dht11_sensor;
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
+extern DMA_HandleTypeDef hdma_adc1;
+extern ADC_HandleTypeDef hadc1;
 extern TIM_HandleTypeDef htim2;
 /* USER CODE BEGIN EV */
 
@@ -222,6 +226,37 @@ void EXTI0_IRQHandler(void)
 }
 
 /**
+  * @brief This function handles DMA1 channel1 global interrupt.
+  */
+void DMA1_Channel1_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Channel1_IRQn 0 */
+
+  /* USER CODE END DMA1_Channel1_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_adc1);
+  /* USER CODE BEGIN DMA1_Channel1_IRQn 1 */
+
+  /* USER CODE END DMA1_Channel1_IRQn 1 */
+}
+
+/**
+  * @brief This function handles ADC1 and ADC2 global interrupts.
+  */
+void ADC1_2_IRQHandler(void)
+{
+  /* USER CODE BEGIN ADC1_2_IRQn 0 */
+
+  /* USER CODE END ADC1_2_IRQn 0 */
+  HAL_ADC_IRQHandler(&hadc1);
+  /* USER CODE BEGIN ADC1_2_IRQn 1 */
+	
+	mcu_voltage = 2*(adc_value/4096.0)*3.3;
+	HAL_ADC_Start_DMA(&hadc1, &adc_value, 1);
+
+  /* USER CODE END ADC1_2_IRQn 1 */
+}
+
+/**
   * @brief This function handles TIM2 global interrupt.
   */
 void TIM2_IRQHandler(void)
@@ -233,6 +268,7 @@ void TIM2_IRQHandler(void)
   /* USER CODE BEGIN TIM2_IRQn 1 */
 	
 	HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_10);
+	HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_8);
 	if(!flag){
 		flag = 1;
 	}

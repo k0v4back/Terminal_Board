@@ -25,6 +25,9 @@
 #include "fonts.h"
 #include "dht11.h"
 #include "help_functions.h"
+
+#define ADC_REFERENCE_VOLTAGE                                           1.2
+#define ADC_MAX                                                         0xFFF
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -38,8 +41,9 @@ struct dht11_sensor my_dht11_sensor = {
 	
 volatile _Bool flag = 0;
 uint16_t count_tick = 0;
-uint16_t adc_value = 0;
-float bat_volt;
+
+volatile float mcu_voltage = 0;
+volatile uint32_t adc_value = 0;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -53,6 +57,7 @@ float bat_volt;
 
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
+DMA_HandleTypeDef hdma_adc1;
 
 I2C_HandleTypeDef hi2c1;
 
@@ -69,6 +74,7 @@ static void MX_GPIO_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_TIM2_Init(void);
+static void MX_DMA_Init(void);
 static void MX_ADC1_Init(void);
 /* USER CODE BEGIN PFP */
 
@@ -110,6 +116,7 @@ int main(void)
   MX_I2C1_Init();
   MX_TIM1_Init();
   MX_TIM2_Init();
+  MX_DMA_Init();
   MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
 
@@ -127,8 +134,11 @@ int main(void)
 	HAL_TIM_Base_Start_IT(&htim2);
 	
 	/* Enable battary voltage measurment */
-	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET);
+	//HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET);
 	HAL_ADCEx_Calibration_Start(&hadc1);
+	HAL_ADC_Start_DMA(&hadc1, &adc_value, 1);
+	HAL_ADC_Start_IT(&hadc1);
 	
 	//dht11_read(&my_dht11_sensor);
 	/*dht11_read(&my_dht11_sensor);
@@ -141,19 +151,11 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-		//test = dht11_start();
-		//HAL_Delay(500);
 		if(flag){
 			dht11_read(&my_dht11_sensor);
-			UpdateDisplay(my_dht11_sensor.humidity, my_dht11_sensor.temperature, bat_volt);
+			UpdateDisplay(my_dht11_sensor.humidity, my_dht11_sensor.temperature, mcu_voltage);			
 			flag = 0;
 		}
-		
-		HAL_ADC_Start(&hadc1);
-		HAL_ADC_PollForConversion(&hadc1, 100);
-		adc_value = HAL_ADC_GetValue(&hadc1);
-		bat_volt = 2*(adc_value/4096.0)*3.3;
-		HAL_ADC_Stop(&hadc1);
 		
     /* USER CODE END WHILE */
 
@@ -170,9 +172,6 @@ int main(void)
 		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);
 		HAL_Delay(500);
 		*/
-		
-		//UpdateCount(20);
-		//HAL_Delay(500);
   }
   /* USER CODE END 3 */
 }
@@ -255,7 +254,7 @@ static void MX_ADC1_Init(void)
   */
   sConfig.Channel = ADC_CHANNEL_1;
   sConfig.Rank = ADC_REGULAR_RANK_1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_1CYCLE_5;
+  sConfig.SamplingTime = ADC_SAMPLETIME_239CYCLES_5;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
@@ -392,6 +391,22 @@ static void MX_TIM2_Init(void)
 }
 
 /**
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void)
+{
+
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA1_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA1_Channel1_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
+
+}
+
+/**
   * @brief GPIO Initialization Function
   * @param None
   * @retval None
@@ -409,7 +424,7 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0|GPIO_PIN_10|GPIO_PIN_15, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0|GPIO_PIN_8|GPIO_PIN_10|GPIO_PIN_15, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : PC13 */
   GPIO_InitStruct.Pin = GPIO_PIN_13;
@@ -418,8 +433,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PA0 PA10 */
-  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_10;
+  /*Configure GPIO pins : PA0 PA8 PA10 */
+  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_8|GPIO_PIN_10;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
