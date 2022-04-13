@@ -29,7 +29,7 @@
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN TD */
 extern volatile _Bool flag;
-extern volatile float mcu_voltage;
+extern volatile float bat_voltage;
 extern volatile uint32_t adc_value;
 extern struct dht11_sensor my_dht11_sensor;
 /* USER CODE END TD */
@@ -250,7 +250,7 @@ void ADC1_2_IRQHandler(void)
   HAL_ADC_IRQHandler(&hadc1);
   /* USER CODE BEGIN ADC1_2_IRQn 1 */
 	
-	mcu_voltage = 2*(adc_value/4096.0)*3.3;
+	bat_voltage = 4*(adc_value/4095.0)*3.44;
 	HAL_ADC_Start_DMA(&hadc1, &adc_value, 1);
 
   /* USER CODE END ADC1_2_IRQn 1 */

@@ -42,8 +42,8 @@ struct dht11_sensor my_dht11_sensor = {
 volatile _Bool flag = 0;
 uint16_t count_tick = 0;
 
-volatile float mcu_voltage = 0;
-volatile uint32_t adc_value = 0;
+volatile float bat_voltage = 0;
+volatile uint32_t adc_value;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -153,7 +153,7 @@ int main(void)
   {
 		if(flag){
 			dht11_read(&my_dht11_sensor);
-			UpdateDisplay(my_dht11_sensor.humidity, my_dht11_sensor.temperature, mcu_voltage);			
+			UpdateDisplay(my_dht11_sensor.humidity, my_dht11_sensor.temperature, bat_voltage);			
 			flag = 0;
 		}
 		
