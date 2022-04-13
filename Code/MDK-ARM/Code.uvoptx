@@ -158,7 +158,7 @@
         <Ww>
           <count>1</count>
           <WinNumber>1</WinNumber>
-          <ItemText>bat_volt,0x0A</ItemText>
+          <ItemText>mcu_voltage</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>
