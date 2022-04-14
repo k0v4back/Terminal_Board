@@ -42,7 +42,7 @@
 *.idb
 *.pdb
 
-/Altium/__Previews
+/Altium/v2/__Previews
 /Altium/Project Outputs for Data_Transmission_Panel
 
 /Code/.mxproject
