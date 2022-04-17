@@ -2,7 +2,6 @@
 #define _DHT11_H
 
 #include "stm32f1xx_hal.h"
-#include "main.h"
 
 #ifndef DHT11_RESPONSE
 enum DHT11_RESPONSE {
