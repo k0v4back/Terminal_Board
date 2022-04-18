@@ -9,15 +9,16 @@
 
 
 #ifndef LM75_RESPONSE
-enum LM75_RESPONSE {
-	ERROR_LM75_FIRST_INIT,
-	ERROR_LM75_SECOND_INIT,
-	SUCCESS_LM75_INIT
+enum LM75_SLEEP_MODE {
+	LM75_NORMAL,
+	LM75_SHUTDOWN
 };
 #endif // LM75_RESPONSE
 
-static uint8_t lm75_write_command(I2C_HandleTypeDef *hi2c, uint8_t command);
-static uint16_t lm75_read_command(I2C_HandleTypeDef *hi2c, uint8_t command, uint16_t data);
 float lm75_read_temp(I2C_HandleTypeDef *hi2c);
+void lm75_sleep_mode(I2C_HandleTypeDef *hi2c, enum LM75_SLEEP_MODE mode);
+void lm75_write_temperature(I2C_HandleTypeDef *hi2c, uint8_t reg, float temp);
+void lm75_write_shutdown_temperature(I2C_HandleTypeDef *hi2c, uint8_t reg, float temp);
+void lm75_write_turn_on_temperature(I2C_HandleTypeDef *hi2c, uint8_t reg, float temp);
 
 #endif  // _LM75_H

@@ -151,7 +151,9 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+		
 		if(flag){
+			//lm75_sleep_mode(&hi2c2, LM75_NORMAL);
 			dht11_read(&my_dht11_sensor);
 			temp_lm75 = lm75_read_temp(&hi2c2);
 			UpdateDisplay(my_dht11_sensor.humidity, my_dht11_sensor.temperature, bat_voltage, temp_lm75);			
