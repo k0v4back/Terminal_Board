@@ -33,7 +33,6 @@
 #define SSD1306_HEIGHT          64
 #endif // SSD1306_HEIGHT
 
-
 //
 //  Enumeration for screen colors
 //
@@ -55,7 +54,6 @@ typedef struct {
 //
 //  Function definitions
 //
-
 uint8_t ssd1306_Init(I2C_HandleTypeDef *hi2c);
 void ssd1306_UpdateScreen(I2C_HandleTypeDef *hi2c);
 void ssd1306_Fill(SSD1306_COLOR color);

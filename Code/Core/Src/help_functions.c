@@ -7,9 +7,21 @@ char s_bat_volt[15];
 char s_lm75_temperature[15];
 
 extern I2C_HandleTypeDef hi2c1;
+extern _Bool ssd1306_init;
 
-void UpdateDisplay(float humidity, float temperature, float bat_volt, float ln75_temp)
+uint8_t UpdateDisplay(float humidity, float temperature, float bat_volt, float ln75_temp)
 {
+
+	if(ssd1306_init == 0){
+			if(ssd1306_Init(&hi2c1) != 0){
+				ssd1306_init = 0;
+				Error_Handler();
+				return 0;
+			}
+			ssd1306_Fill(Black);
+			ssd1306_UpdateScreen(&hi2c1);
+			ssd1306_init = 1;
+	}
 	sprintf(s_humidity, "%.0f%%", humidity);
 	sprintf(s_temperature, "%.0fC", temperature);
 	sprintf(s_bat_volt, "%.2fV", bat_volt);

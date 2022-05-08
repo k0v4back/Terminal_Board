@@ -43,6 +43,8 @@ struct dht11_sensor my_dht11_sensor = {
 volatile _Bool flag = 0;
 uint16_t count_tick = 0;
 
+_Bool ssd1306_init = 0;
+
 volatile float bat_voltage = 0.0;
 volatile uint32_t adc_value;
 volatile float temp_lm75 = 0.0;
@@ -126,13 +128,12 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
 	/* Display init */
-	if (ssd1306_Init(&hi2c1) != 0) {
-    Error_Handler();
+	if(ssd1306_Init(&hi2c1) != 0){
+    //Error_Handler();
   }
-  HAL_Delay(1000);
+	ssd1306_init = 1;
   ssd1306_Fill(Black);
   ssd1306_UpdateScreen(&hi2c1);
-  HAL_Delay(1000);
 	
 	/* Start timer_1, timer_2*/
 	HAL_TIM_Base_Start(&htim1);
